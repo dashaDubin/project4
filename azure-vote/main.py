@@ -15,13 +15,17 @@ from opencensus.trace.samplers import ProbabilitySampler
 from opencensus.trace.tracer import Tracer
 from opencensus.ext.azure.trace_exporter import AzureExporter
 from opencensus.ext.flask.flask_middleware import FlaskMiddleware
-from applicationinsights import TelemetryClient
+from opencensus.ext.azure.log_exporter import AzureEventHandler
 
 # Logging
 logger = logging.getLogger(__name__)
 logger.addHandler(AzureLogHandler(
     connection_string='InstrumentationKey=8d8f7227-115f-46a7-8bf6-c4e12647f8a9')
 )
+logger.addHandler(AzureEventHandler(
+    connection_string='InstrumentationKey=8d8f7227-115f-46a7-8bf6-c4e12647f8a9')
+    )
+
 
 # Metrics
 exporter = metrics_exporter.new_metrics_exporter(
@@ -35,7 +39,7 @@ tracer = Tracer(
     ), 
     sampler=ProbabilitySampler(1.0)
 )
-tc = TelemetryClient('8d8f7227-115f-46a7-8bf6-c4e12647f8a9')
+
 
 app = Flask(__name__)
 
@@ -124,6 +128,6 @@ def index():
 
 if __name__ == "__main__":
     # comment line below when deploying to VMSS
-    #app.run() # local
+    app.run() # local
     # uncomment the line below before deployment to VMSS
-    app.run(host='0.0.0.0', threaded=True, debug=True) # remote
+    #app.run(host='0.0.0.0', threaded=True, debug=True) # remote
